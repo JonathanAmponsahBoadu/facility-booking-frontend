@@ -4,8 +4,19 @@ import { useEffect, useState } from "react";
 import API from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 
 export default function BookingsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, [router]);
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
@@ -71,64 +82,7 @@ export default function BookingsPage() {
         }}
       />
 
-      {/* Navbar */}
-      <nav
-        style={{
-          position: "relative",
-          zIndex: 10,
-          background: "rgba(10,15,30,0.95)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          padding: "1rem 2.5rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-          }}
-        >
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={34}
-            height={34}
-            style={{ borderRadius: "8px" }}
-          />
-          <span style={{ color: "#fff", fontWeight: "700", fontSize: "1rem" }}>
-            UG Facility Booking
-          </span>
-        </Link>
-        <div style={{ display: "flex", gap: "2rem" }}>
-          <Link
-            href="/facilities"
-            style={{
-              color: "rgba(255,255,255,0.5)",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-            }}
-          >
-            Facilities
-          </Link>
-          <Link
-            href="/bookings"
-            style={{
-              color: "#fff",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-              fontWeight: "600",
-            }}
-          >
-            My Bookings
-          </Link>
-        </div>
-      </nav>
+      <Navbar activePage="bookings" />
 
       <div
         style={{

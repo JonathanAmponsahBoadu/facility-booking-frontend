@@ -3,9 +3,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, [router]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -30,94 +40,7 @@ export default function Home() {
         }}
       />
 
-      {/* Navbar */}
-      <nav
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: scrolled ? "rgba(10,15,30,0.95)" : "transparent",
-          backdropFilter: scrolled ? "blur(12px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "none",
-          transition: "all 0.3s ease",
-          padding: "1rem 2.5rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={38}
-            height={38}
-            style={{ borderRadius: "8px" }}
-          />
-          <span
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "700",
-              color: "#fff",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            UG Facility Booking
-          </span>
-        </div>
-        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-          <Link
-            href="/facilities"
-            style={{
-              color: "rgba(255,255,255,0.7)",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-              fontFamily: "sans-serif",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.target.style.color = "#fff")}
-            onMouseLeave={(e) =>
-              (e.target.style.color = "rgba(255,255,255,0.7)")
-            }
-          >
-            Facilities
-          </Link>
-          <Link
-            href="/bookings"
-            style={{
-              color: "rgba(255,255,255,0.7)",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-              fontFamily: "sans-serif",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.target.style.color = "#fff")}
-            onMouseLeave={(e) =>
-              (e.target.style.color = "rgba(255,255,255,0.7)")
-            }
-          >
-            My Bookings
-          </Link>
-          <Link
-            href="/facilities"
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
-              textDecoration: "none",
-              padding: "0.5rem 1.25rem",
-              borderRadius: "8px",
-              fontSize: "0.85rem",
-              fontFamily: "sans-serif",
-              fontWeight: "600",
-              boxShadow: "0 4px 15px rgba(99,102,241,0.4)",
-            }}
-          >
-            Book Now
-          </Link>
-        </div>
-      </nav>
+      <Navbar activePage="home" />
 
       {/* Hero */}
       <section

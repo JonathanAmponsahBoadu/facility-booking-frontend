@@ -5,22 +5,35 @@ import { useParams } from "next/navigation";
 import API from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
-
+import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 export default function FacilityDetailPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, [router]);
+
   const { id } = useParams();
   const [facility, setFacility] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [date, setDate] = useState("");
-  const [users, setUsers] = useState([]);
-  const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
 
+  const [currentUser] = useState(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
   useEffect(() => {
     API.get(`/facilities/${id}`).then((res) => setFacility(res.data));
-    API.get("/users").then((res) => setUsers(res.data));
   }, [id]);
 
   const checkAvailability = () => {
@@ -47,15 +60,15 @@ export default function FacilityDetailPage() {
       setMessageType("error");
       return;
     }
-    if (!userId) {
-      setMessage("Please select a user.");
+    if (!currentUser) {
+      setMessage("User not found. Please log in again.");
       setMessageType("error");
       return;
     }
 
     API.post("/bookings", {
       facility: { id: parseInt(id) },
-      user: { id: parseInt(userId) },
+      user: { id: currentUser.id },
       date,
       startTime: selectedSlot[0],
       endTime: selectedSlot[1],
@@ -110,64 +123,7 @@ export default function FacilityDetailPage() {
           pointerEvents: "none",
         }}
       />
-
-      {/* Navbar */}
-      <nav
-        style={{
-          position: "relative",
-          zIndex: 10,
-          background: "rgba(10,15,30,0.95)",
-          backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          padding: "1rem 2.5rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-          }}
-        >
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={34}
-            height={34}
-            style={{ borderRadius: "8px" }}
-          />
-          <span style={{ color: "#fff", fontWeight: "700", fontSize: "1rem" }}>
-            UG Facility Booking
-          </span>
-        </Link>
-        <div style={{ display: "flex", gap: "2rem" }}>
-          <Link
-            href="/facilities"
-            style={{
-              color: "rgba(255,255,255,0.5)",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-            }}
-          >
-            Facilities
-          </Link>
-          <Link
-            href="/bookings"
-            style={{
-              color: "rgba(255,255,255,0.5)",
-              textDecoration: "none",
-              fontSize: "0.9rem",
-            }}
-          >
-            My Bookings
-          </Link>
-        </div>
-      </nav>
+      <Navbar activePage="facilities" />
 
       <div
         style={{
@@ -448,49 +404,6 @@ export default function FacilityDetailPage() {
                 {selectedSlot[0]} – {selectedSlot[1]}
               </strong>{" "}
               on <strong>{date}</strong>
-            </div>
-
-            <div style={{ marginBottom: "1.25rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  color: "rgba(255,255,255,0.4)",
-                  fontSize: "0.8rem",
-                  marginBottom: "0.5rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Select User
-              </label>
-              <select
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                style={{
-                  width: "100%",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "10px",
-                  padding: "0.65rem 1rem",
-                  color: "#fff",
-                  fontSize: "0.9rem",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              >
-                <option value="" style={{ background: "#0a0f1e" }}>
-                  -- Select a user --
-                </option>
-                {users.map((user) => (
-                  <option
-                    key={user.id}
-                    value={user.id}
-                    style={{ background: "#0a0f1e" }}
-                  >
-                    {user.name} ({user.role})
-                  </option>
-                ))}
-              </select>
             </div>
 
             <button
